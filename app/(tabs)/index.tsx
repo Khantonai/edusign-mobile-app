@@ -1,74 +1,111 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { useState } from 'react';
+import { Image, StyleSheet, Platform, View, Text, Modal, Pressable, Button } from 'react-native';
+import {
+  useCameraPermission,
+  useCameraDevice,
+  Camera,
+  useCodeScanner,
+} from "react-native-vision-camera";
+import { openSettings } from "expo-linking";
 
 export default function HomeScreen() {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [cameraPermission, setCameraPermission] = useState(true);
+  const [code, setCode] = useState("");
+
+
+  const { hasPermission, requestPermission } = useCameraPermission();
+  const device = useCameraDevice('back')
+
+  const handleCameraPermission = async () => {
+    console.log("handleCameraPermission");
+    if (!hasPermission) {
+      if ((await requestPermission()) === false) {
+        console.log("Permission denied");
+        setCameraPermission(false);
+      } else {
+        setIsModalVisible(true);
+        setCameraPermission(true);
+      }
+    } else {
+      setIsModalVisible(true);
+      setCameraPermission(true);
+    }
+  };
+
+  const codeScanner = useCodeScanner({
+    codeTypes: ["qr"],
+    onCodeScanned: (codes) => {
+      setCode(codes[0].value as string);
+      console.log(codes[0].value);
+      setIsModalVisible(false);
+    },
+  });
+
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View>
+      <Text>Salut</Text>
+      <Button onPress={handleCameraPermission} title='camera'></Button>
+      <Pressable onPress={openSettings}>
+        <Text>
+          Ouvrir les paramètres
+        </Text>
+      </Pressable>
+      <Text>{code}</Text>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isModalVisible}
+        onRequestClose={() => {
+          setIsModalVisible(false);
+        }}
+      >
+        <Pressable
+          style={{ flex: 1 }}
+          onPress={() => {
+            setIsModalVisible(false);
+          }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <View style={styles.modalContent}>
+          <Pressable
+            onPress={() => setIsModalVisible(false)}
+            style={styles.modalClose}
+          />
+          <Camera
+            style={{ flex: 1, borderRadius: 18 }}
+            device={device as any}
+            isActive={isModalVisible}
+            photoQualityBalance={"speed"}
+          codeScanner={codeScanner}
+          />
+        </View>
+      </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+
+  modalClose: {
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    width: 40,
+    height: 40,
+    zIndex: 1,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    top: 20,
+    right: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
+  modalContent: {
+    height: "80%",
+    width: "100%",
+    borderTopRightRadius: 18,
+    borderTopLeftRadius: 18,
+    position: "absolute",
     bottom: 0,
-    left: 0,
-    position: 'absolute',
+    overflow: "hidden",
   },
 });
