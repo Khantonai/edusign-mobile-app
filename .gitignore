@@ -41,3 +41,5 @@ app-example
 # Build directories
 /ios
 /android
+
+.env
