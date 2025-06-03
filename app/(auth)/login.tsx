@@ -1,32 +1,103 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert } from 'react-native';
+import { View, Text, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useAuth } from '@/context/auth-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { router } from 'expo-router';
+import { Button, Input } from 'react-native-elements';
+import { Link, router } from 'expo-router';
 
 export default function LoginScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    setError('');
     const result = await login(email, password);
     if (result.success) {
-      Alert.alert('Login successful', 'You are now logged in');
-      // Optionally navigate to a different screen after login
-      // router.replace("/(tabs)"); // Adjust this to your home screen name
+      Alert.alert('Connexion réussie', 'Bienvenue !');
+      router.replace('/(tabs)');
     } else {
-      Alert.alert('Login failed', result.message);
+      setError(result.message || 'Connexion échouée');
     }
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={{ marginBottom: 10 }} />
-      <TextInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} style={{ marginBottom: 10 }} />
-      <Button title="Login" onPress={handleLogin} />
-      <Button title="Go to Register" onPress={() => navigation.navigate('Register')} />
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+
+      <Text style={styles.title}>Se connecter</Text>
+
+      <Text style={{ color: "red" }}>
+        {error}
+      </Text>
+
+      <Input
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        style={styles.input}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        label="Email"
+        errorStyle={{ display: 'none' }}
+        inputContainerStyle={{ borderBottomWidth: 0 }}
+      />
+      <Input
+        placeholder="Mot de passe"
+        secureTextEntry
+        value={password}
+        onChangeText={setPassword}
+        style={styles.input}
+        label="Mot de passe"
+        errorStyle={{ display: 'none' }}
+        inputContainerStyle={{ borderBottomWidth: 0 }}
+      />
+      <View style={styles.buttonCont}>
+        <Button title="Se connecter" onPress={handleLogin} buttonStyle={styles.mainButton} titleStyle={{ color: "black" }} />
+        <Link href={"/(auth)/register"} replace style={styles.secondaryButton}>Pas de compte ? S'inscrire</Link>
+      </View>
+
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    marginBottom: 12,
+    borderRadius: 4,
+  },
+  buttonCont: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
+  mainButton: {
+    backgroundColor: '#f8ac32',
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  secondaryButton: {
+    alignSelf: 'center',
+    color: '#4ca4c2',
+  },
+});

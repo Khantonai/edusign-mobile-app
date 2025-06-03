@@ -34,7 +34,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <SafeAreaView style={{ flex: 1 }}>
         <AuthProvider>
-          <Stack>
+          <Stack screenOptions={{ headerShown: false, animation: 'fade_from_bottom' }}>
             <Stack.Screen name="(tabs)/index" options={{ headerShown: false }} />
           </Stack>
           <StatusBar style="auto" />

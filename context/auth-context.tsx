@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             const response = await fetch(`http://${process.env.EXPO_PUBLIC_IP_ADDRESS}:${process.env.EXPO_PUBLIC_APP_PORT}/api/login`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify({ email, password }),
             });
 
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 return { success: false, message: data.message };
             }
         } catch (error) {
-            return { success: false, message: 'Something went wrong' };
+            return { success: false, message: 'Something went wrong' + error.message };
         }
     };
 

@@ -15,9 +15,9 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
 
-useEffect(() => {
-  setLoading(false);
-}, [token]);
+  useEffect(() => {
+    setLoading(false);
+  }, [token]);
 
   if (loading) {
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator /></View>;
@@ -29,8 +29,8 @@ useEffect(() => {
         <Stack.Screen name="Scan" component={ScanScreen} />
       ) : (
         <>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
         </>
       )}
     </Stack.Navigator>

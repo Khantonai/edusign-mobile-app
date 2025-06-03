@@ -1,14 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Image, StyleSheet, Platform, View, Text, Modal, Pressable, Button, Alert } from 'react-native';
+import { Image, StyleSheet, View, Text, Modal, Pressable, Alert } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { openSettings } from "expo-linking";
 import 'react-native-reanimated';
 import { useAuth } from '../../context/auth-context';
+import { Icon } from 'react-native-elements';
 
-// interface Code {
-//   url: string;
-//   token: string;
-// }
 
 export default function ScanScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -105,12 +102,39 @@ export default function ScanScreen() {
   };
 
   return (
-    <View>
-      <Text>Bienvenue</Text>
-      <Button onPress={handleCameraPermission} title='camera'></Button>
-      <Pressable onPress={openSettings}>
-        <Text>Ouvrir les paramètres</Text>
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.header}>
+          <Image source={require('@/assets/images/icon.png')} style={styles.icon}></Image>
+          <Text style={styles.title}>Bienvenue sur Edusign</Text>
+        </View>
+
+        <Pressable style={styles.scanButton} onPress={handleCameraPermission}>
+          <Icon
+            name='qr-code-outline'
+            type='ionicon'
+            size={100}
+            color='white'
+          />
+          <Text style={styles.scanText}>Signer</Text>
+        </Pressable>
+
+        {/* <Button onPress={handleCameraPermission} title='camera' buttonStyle={styles.mainButton} titleStyle={{ color: "black" }}>
+
+
+        </Button> */}
+        <Pressable onPress={openSettings}>
+          <Text style={styles.settingsText}>Cliquez ici pour ouvrir les paramètres et autoriser la caméra</Text>
+        </Pressable>
+      </View>
+
+
+      <Pressable onPress={logout} style={styles.logout}>
+        <Text style={{
+          color: "white",
+        }}>Se déconnecter</Text>
       </Pressable>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -118,14 +142,24 @@ export default function ScanScreen() {
         onRequestClose={closeModal}
       >
         <Pressable
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
           onPress={closeModal}
         />
         <View style={styles.modalContent}>
           <Pressable
             onPress={closeModal}
             style={styles.modalClose}
-          />
+          >
+          <Icon
+            name='close-outline'
+            type='ionicon'
+            size={30}
+            color='white'
+          ></Icon>
+          </Pressable>
+
+          <View style={styles.scanHelper} />
+          
           <CameraView
             style={{ flex: 1, borderRadius: 18 }}
             barcodeScannerSettings={{
@@ -135,15 +169,27 @@ export default function ScanScreen() {
           />
         </View>
       </Modal>
-
-      <Pressable onPress={logout}>
-        <Text>Se déconnecter</Text>
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 60,
+    backgroundColor: '#fff',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 10,
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 40,
+  },
   modalClose: {
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     width: 40,
@@ -164,5 +210,66 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     overflow: "hidden",
+  },
+  scanHelper: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: [{ translateX: -150 }, { translateY: -150 }],
+    right: 0,
+    width: 300,
+    height: 300,
+    zIndex: 1,
+    borderWidth: 5,
+    borderColor: "white",
+    borderRadius: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  header: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 15,
+    paddingVertical: 20,
+  },
+  icon: {
+    width: 50,
+    height: 50,
+  },
+  mainButton: {
+    backgroundColor: '#f8ac32',
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  scanButton: {
+    backgroundColor: '#f8ac32',
+    borderRadius: 10,
+    alignSelf: 'center',
+    padding: 10,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    aspectRatio: 1,
+  },
+  scanText: {
+    color: 'white',
+    fontSize: 24,
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  settingsText: {
+    color: '#4ca4c2',
+    textAlign: 'center',
+  },
+  logout: {
+    backgroundColor: "crimson",
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
